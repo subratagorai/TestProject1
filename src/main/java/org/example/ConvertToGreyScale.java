@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConvertToGreyScale {
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/be/TestProject1/src/main/resources/input";
+    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input";
 
     public void convertPDFToGreyScaleUsingPDFBox() {
         // Load PDF from Base Directory using PDFBox
