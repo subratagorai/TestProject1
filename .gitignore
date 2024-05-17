@@ -15,3 +15,31 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+
+.metadata
+bin/
+target/
+tmp/
+*.tmp
+*.bak
+*.log
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+####MAC
+.DS_Store
+
