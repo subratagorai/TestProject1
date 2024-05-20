@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class GreyScalePDFPrinter {
 
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/be/TestProject1/src/main/resources/input";
+    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input";
 
     public void printGreyScalePDF() throws IOException {
         File file = new File(BASE_DIR + "/BSS-232261.pdf");
@@ -21,7 +21,7 @@ public class GreyScalePDFPrinter {
         for (int i = 0; i < pageCount; i++) {
             PDPage currentPage = document.getPage(i);
             currentPage.getResources();
-            GrayscaleCreator pdfStreamEngine = new GrayscaleCreator(currentPage);
+            GrayscaleCreator pdfStreamEngine = new GrayscaleCreator();
             pdfStreamEngine.handlePage(document.getPage(i));
         }
         document.save(BASE_DIR + "/BSS-232261_GreyScale.pdf");

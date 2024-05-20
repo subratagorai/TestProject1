@@ -2,6 +2,8 @@ package org.example;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.contentstream.operator.Operator;
+import org.apache.pdfbox.contentstream.operator.OperatorName;
+import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSFloat;
 import org.apache.pdfbox.cos.COSInteger;
 import org.apache.pdfbox.cos.COSName;
@@ -10,10 +12,10 @@ import org.apache.pdfbox.pdfwriter.ContentStreamWriter;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.common.PDStream;
-import org.apache.pdfbox.pdmodel.graphics.color.PDColorSpace;
-import org.apache.pdfbox.pdmodel.graphics.color.PDDeviceGray;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -61,11 +63,70 @@ public class ConvertToGreyScale {
                             System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
                             convertCMYKToRGBToGrey(pageTokens, editedPageTokens, counter);
                             editedPageTokens.add(Operator.getOperator("G"));
-                        } else {
+                        }
+
+                        //Process tokens for images
+                        else if (OperatorName.DRAW_OBJECT.equals(((Operator) token).getName()))
+                        {
+                            COSName cosName = null;
+                            Object cosNameObj = pageTokens.get(counter - 1);
+                            if (cosNameObj instanceof  COSName) {
+                                cosName = (COSName) cosNameObj;
+                            }
+                            List<COSBase> operands=  new ArrayList<>();
+                            operands.add(cosName);
+                            PDXObject xObject = currentPage.getResources().getXObject((COSName) cosNameObj);
+                            if(xObject instanceof PDImageXObject pdImageXObject)
+
+                            {
+                                GetImageLocationService imageLocationService = new GetImageLocationService(operands);
+                                float[] location = imageLocationService.getImageLocation(currentPage);
+
+                                BufferedImage bufferedImage = pdImageXObject.getImage();
+                                // get image's width and height
+                                int width = bufferedImage.getWidth();
+                                int height = bufferedImage.getHeight();
+                                int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+                                // convert to grayscale
+                                for (int k = 0; k < pixels.length; k++) {
+
+                                    // Here i denotes the index of array of pixels
+                                    // for modifying the pixel value.
+                                    int p = pixels[k];
+
+                                    int a = (p >> 24) & 0xff;
+                                    int r = (p >> 16) & 0xff;
+                                    int g = (p >> 8) & 0xff;
+                                    int b = p & 0xff;
+
+                                    // calculate average
+                                    int avg = (r + g + b) / 3;
+
+                                    // replace RGB value with avg
+                                    p = (a << 24) | (avg << 16) | (avg << 8) | avg;
+
+                                    pixels[k] = p;
+                                }
+                                bufferedImage.setRGB(0, 0, width, height, pixels, 0, width);
+                                // write image
+                                try {
+                                    File f = new File( GreyScalePDFPrinter.BASE_DIR +"/"+ cosName+ Math.random() + ".png");
+
+                                    ImageIO.write(bufferedImage, "png", f);
+                                } catch (IOException e) {
+                                    System.out.println(e);
+                                }
+
+                                System.out.println();
+                                editedPageTokens.add(token);
+                            }
+                        }
+                        else {
                             editedPageTokens.add(token);
                         }
 
-                    } else {
+                    }
+                    else {
                         editedPageTokens.add(token);
                     }
 
@@ -73,48 +134,7 @@ public class ConvertToGreyScale {
 
 //TODO need to check for images
 
-                for (COSName consName : currentPage.getResources().getXObjectNames()) {
-                    System.out.println(consName.getName());
-                    if( currentPage.getResources().getXObject(consName) instanceof PDImageXObject) {
-                            PDImageXObject pdImageXObject = (PDImageXObject) currentPage.getResources().getXObject(consName);
-                        System.out.println("Image color space: "  + pdImageXObject.getColorSpace() );
-
-                        int width =  pdImageXObject.getWidth();
-                        int height =  pdImageXObject.getHeight();
-                        int xMin = pdImageXObject.getRawRaster().getMinX();
-                        int yMin = pdImageXObject.getRawRaster().getMinY();
-                        int[] pixels = pdImageXObject.getRawRaster().getPixels(xMin,yMin,width,height, (int[]) null);
-                        // convert to grayscale
-                        for (int j = 0; j < pixels.length; j++) {
-
-                            // Here i denotes the index of array of pixels
-                            // for modifying the pixel value.
-                            int p = pixels[j];
-
-                            int a = (p >> 24) & 0xff;
-                            int r = (p >> 16) & 0xff;
-                            int g = (p >> 8) & 0xff;
-                            int b = p & 0xff;
-
-                            // calculate average
-                            int avg = (r + g + b) / 3;
-
-                            // replace RGB value with avg
-                            p = (a << 24) | (avg << 16) | (avg << 8) | avg;
-
-                            pixels[j] = p;
-                        }
-                        pdImageXObject.getRawRaster().setPixels(xMin,yMin,width,height,pixels);
-                        System.out.println("Image greyscale done");
-//
-//                        if(!pdImageXObject.getColorSpace().getName().equals("DeviceGray") ){
-//
-//                            PDColorSpace pdColorSpace = PDDeviceGray.INSTANCE;
-//                            pdImageXObject.setColorSpace(pdColorSpace);
-//                        }
-
-                    }
-                }
+                //processImages(currentPage);
 
                 PDStream updatedPageContents = new PDStream(document);
 
@@ -131,6 +151,65 @@ public class ConvertToGreyScale {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void processImages(PDPage currentPage) throws IOException {
+        for (COSName consName : currentPage.getResources().getXObjectNames()) {
+            System.out.println(consName.getName());
+            if( currentPage.getResources().getXObject(consName) instanceof PDImageXObject) {
+                    PDImageXObject pdImageXObject = (PDImageXObject) currentPage.getResources().getXObject(consName);
+                System.out.println("Image color space: "  + pdImageXObject.getColorSpace() );
+
+//                        int width =  pdImageXObject.getWidth();
+//                        int height =  pdImageXObject.getHeight();
+                int xMin = pdImageXObject.getRawRaster().getMinX();
+                int yMin = pdImageXObject.getRawRaster().getMinY();
+
+                BufferedImage bufferedImage = pdImageXObject.getImage();
+                // get image's width and height
+                int width = bufferedImage.getWidth();
+                int height = bufferedImage.getHeight();
+                int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+                // convert to grayscale
+                for (int j = 0; j < pixels.length; j++) {
+
+                    // Here i denotes the index of array of pixels
+                    // for modifying the pixel value.
+                    int p = pixels[j];
+
+                    int a = (p >> 24) & 0xff;
+                    int r = (p >> 16) & 0xff;
+                    int g = (p >> 8) & 0xff;
+                    int b = p & 0xff;
+
+                    // calculate average
+                    int avg = (r + g + b) / 3;
+
+                    // replace RGB value with avg
+                    p = (a << 24) | (avg << 16) | (avg << 8) | avg;
+
+                    pixels[j] = p;
+                }
+                bufferedImage.setRGB(0, 0, width, height, pixels, 0, width);
+                System.out.println("Image greyscale done, save file as ");
+                try {
+                    File f = new File( GreyScalePDFPrinter.BASE_DIR +"/"+ consName+ Math.random() + ".png");
+
+                    ImageIO.write(bufferedImage, "png", f);
+                } catch (IOException e) {
+                    System.out.println(e);
+                }
+                currentPage.getCOSObject().removeItem(consName);
+               // pdImageXObject = LosslessFactory.createFromImage(document, bufferedImage);
+//
+//                        if(!pdImageXObject.getColorSpace().getName().equals("DeviceGray") ){
+//
+//                            PDColorSpace pdColorSpace = PDDeviceGray.INSTANCE;
+//                            pdImageXObject.setColorSpace(pdColorSpace);
+//                        }
+
+            }
         }
     }
 
