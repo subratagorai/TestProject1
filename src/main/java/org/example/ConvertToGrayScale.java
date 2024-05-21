@@ -30,12 +30,14 @@ import java.util.List;
 import java.util.Set;
 
 public class ConvertToGrayScale {
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input";
+    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input/";
+    private static final String INPUT_FILE="ConsolidatedBill_AG_20240301_M01_1_1_4.pdf";
+    private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
 
     public void convertPDFToGrayScaleUsingPDFBox() {
         // Load PDF from Base Directory using PDFBox
         try {
-            File file = new File(BASE_DIR + "/BSS-232261.pdf");
+            File file = new File(BASE_DIR + "/" + INPUT_FILE);
             PDDocument document = Loader.loadPDF(file);
             System.out.println("PDF loaded");
 
@@ -55,14 +57,7 @@ public class ConvertToGrayScale {
                         //TODO Need to check cs token to be removed or not
                         distinctOperator.add(((Operator) token).getName());
                         //System.out.println("Token value counter " + counter + " " + ((Operator) token).getName());
-                        if (((Operator) token).getName().equals("cs") || ((Operator) token).getName().equals("CS")) {
-                            System.out.println("Color Space: " + ((Operator) token).getName());
-                            System.out.println("Previous Token value of  Color Space " + (counter -1) + " " + pageTokens.get(counter-1));
-                            //System.out.println("Token value counter " + (counter -1) + " " + pageTokens.get(counter-1));
-                            editedPageTokens.remove(editedPageTokens.size() - 1);
-                            editedPageTokens.add(COSName.getPDFName("DeviceGray"));
-                        }
-                        else if (((Operator) token).getName().equals("k")) {
+                         if (((Operator) token).getName().equals("k")) {
                             //System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
                             convertCMYKToRGBToGray(pageTokens, editedPageTokens, counter);
                             editedPageTokens.add(Operator.getOperator("g"));
@@ -178,7 +173,7 @@ public class ConvertToGrayScale {
                     contentStream.close();
                 }
             }
-            document.save(BASE_DIR + "/Updated_BSS-232261.pdf");
+            document.save(BASE_DIR + OUT_PUT_FILE);
             // Remember to close the PDF document
             document.close();
 
