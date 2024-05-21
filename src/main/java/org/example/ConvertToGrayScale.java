@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Set;
 
 public class ConvertToGrayScale {
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input/";
-    private static final String INPUT_FILE="Shipping.pdf";
-    private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
+    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/";
+    private static final String INPUT_FILE="input/Shipping.pdf";
+    private static final String OUT_PUT_FILE = "out/Updated_"+INPUT_FILE;
 
     public void convertPDFToGrayScaleUsingPDFBox() {
         // Load PDF from Base Directory using PDFBox
