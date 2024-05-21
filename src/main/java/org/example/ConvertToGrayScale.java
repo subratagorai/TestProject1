@@ -30,14 +30,16 @@ import java.util.List;
 import java.util.Set;
 
 public class ConvertToGrayScale {
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/";
-    private static final String INPUT_FILE="input/Shipping.pdf";
-    private static final String OUT_PUT_FILE = "out/Updated_"+INPUT_FILE;
+    private static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/";
+    private static final String INPUT_DIR = BASE_DIR + "input";
+    private static final String INPUT_FILE="Invoice-Format-in-PDF-05.pdf";
+    private static final String OUTPUT_DIR = BASE_DIR + "output";
+    private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
 
     public void convertPDFToGrayScaleUsingPDFBox() {
         // Load PDF from Base Directory using PDFBox
         try {
-            File file = new File(BASE_DIR + "/" + INPUT_FILE);
+            File file = new File(INPUT_DIR + "/" + INPUT_FILE);
             PDDocument document = Loader.loadPDF(file);
             System.out.println("PDF loaded");
 
@@ -173,7 +175,7 @@ public class ConvertToGrayScale {
                     contentStream.close();
                 }
             }
-            document.save(BASE_DIR + OUT_PUT_FILE);
+            document.save(OUTPUT_DIR+"/" + OUT_PUT_FILE);
             // Remember to close the PDF document
             document.close();
 
