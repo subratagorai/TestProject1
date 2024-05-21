@@ -31,7 +31,7 @@ import java.util.Set;
 
 public class ConvertToGrayScale {
     public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input/";
-    private static final String INPUT_FILE="ConsolidatedBill_AG_20240301_M01_1_1_4.pdf";
+    private static final String INPUT_FILE="Shipping.pdf";
     private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
 
     public void convertPDFToGrayScaleUsingPDFBox() {
