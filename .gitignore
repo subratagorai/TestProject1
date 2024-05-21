@@ -43,6 +43,6 @@ local.properties
 .recommenders
 
 ####MAC
-*.DS_Store
+*/.DS_Store
 ._DS_Store
 
