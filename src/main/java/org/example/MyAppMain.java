@@ -10,11 +10,11 @@ public class MyAppMain {
         // to see how IntelliJ IDEA suggests fixing it.
         System.out.println("Hello and welcome!");
        // call convertPDFToGreyScaleUsingPDFBox method
-        ConvertToGreyScale convertToGreyScale = new ConvertToGreyScale();
-        convertToGreyScale.convertPDFToGreyScaleUsingPDFBox();
-//        GreyScalePDFPrinter greyScalePDFPrinter = new GreyScalePDFPrinter();
+        ConvertToGrayScale convertToGreyScale = new ConvertToGrayScale();
+        convertToGreyScale.convertPDFToGrayScaleUsingPDFBox();
+//        GrayScalePDFPrinter grayScalePDFPrinter = new GrayScalePDFPrinter();
 //        try {
-//            greyScalePDFPrinter.printGreyScalePDF();
+//            grayScalePDFPrinter.printGrayScalePDF();
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }

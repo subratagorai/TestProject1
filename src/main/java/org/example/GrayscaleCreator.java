@@ -10,14 +10,10 @@ import org.apache.pdfbox.contentstream.operator.state.Save;
 import org.apache.pdfbox.contentstream.operator.state.SetGraphicsStateParameters;
 import org.apache.pdfbox.contentstream.operator.state.SetMatrix;
 import org.apache.pdfbox.cos.COSBase;
-import org.apache.pdfbox.cos.COSFloat;
-import org.apache.pdfbox.cos.COSInteger;
 import org.apache.pdfbox.cos.COSName;
-import org.apache.pdfbox.pdfparser.PDFStreamParser;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 
@@ -25,9 +21,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GrayscaleCreator extends PDFStreamEngine {
@@ -112,7 +105,7 @@ public class GrayscaleCreator extends PDFStreamEngine {
                 bufferedImage.setRGB(0, 0, width, height, pixels, 0, width);
                 // write image
                 try {
-                    File f = new File( GreyScalePDFPrinter.BASE_DIR +"/"+ objectName+ Math.random() + ".png");
+                    File f = new File( GrayScalePDFPrinter.BASE_DIR +"/"+ objectName+ Math.random() + ".png");
 
                     ImageIO.write(bufferedImage, "png", f);
                 } catch (IOException e) {
