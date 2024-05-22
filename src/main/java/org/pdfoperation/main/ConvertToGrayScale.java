@@ -47,6 +47,9 @@ public class ConvertToGrayScale {
     private static final String OUTPUT_DIR = BASE_DIR + "output";
     private static final String OUT_PUT_FILE = "GrayScaled_"+INPUT_FILE;
 
+    private static final String TARGET_OUTPUT_DIR = "/Users/subratag/Documents/git/github/pdfoperations/target/classes/output" ;
+
+
     public static void main(String[] args) {
         ConvertToGrayScale convertToGrayScale = new ConvertToGrayScale();
         convertToGrayScale.convertPDFToGrayScaleUsingPDFBox();
@@ -173,7 +176,7 @@ public class ConvertToGrayScale {
 
                                 // write image, for testing/debug purpose that grayscale is done or not
                                 try {
-                                    File f = new File( OUTPUT_DIR +"/"+ cosName+ Math.random() + ".png");
+                                    File f = new File( TARGET_OUTPUT_DIR +"/"+ cosName+ Math.random() + ".png");
 
                                     ImageIO.write(bufferedImage, "png", f);
                                 } catch (IOException e) {
