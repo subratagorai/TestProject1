@@ -17,8 +17,8 @@ import java.util.List;
  * @author SUBRATAG
  */
 public class PDFSplitterMain {
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/input/";
-    private static final String INPUT_FILE="Updated_ConsolidatedBill_AG_20240301_M01_1_1_4.pdf";
+    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/input/";
+    private static final String INPUT_FILE="Sample.pdf";
     private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
 
     public static void main(String[] args) throws IOException {

@@ -40,9 +40,9 @@ import java.util.Set;
 public class ConvertToGrayScale {
     private static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/";
     private static final String INPUT_DIR = BASE_DIR + "input";
-    private static final String INPUT_FILE="PDF-Invoice-US-01.pdf";
+    private static final String INPUT_FILE="Shipping.pdf";
     private static final String OUTPUT_DIR = BASE_DIR + "output";
-    private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
+    private static final String OUT_PUT_FILE = "GrayScaled_"+INPUT_FILE;
 
     /**
      * This method converts a PDF document to grayscale using PDFBox.
@@ -165,7 +165,7 @@ public class ConvertToGrayScale {
 
                                 // write image, for testing/debug purpose that grayscale is done or not
                                 try {
-                                    File f = new File( BASE_DIR +"/"+ cosName+ Math.random() + ".png");
+                                    File f = new File( OUTPUT_DIR +"/"+ cosName+ Math.random() + ".png");
 
                                     ImageIO.write(bufferedImage, "png", f);
                                 } catch (IOException e) {
