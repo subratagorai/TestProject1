@@ -1,4 +1,4 @@
-package org.pdfoperation;
+package org.pdfoperation.main;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.contentstream.operator.Operator;
@@ -16,6 +16,9 @@ import org.apache.pdfbox.pdmodel.common.PDStream;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.pdfoperation.utils.GetImageDetailsService;
+import org.pdfoperation.models.ImageRef;
+import org.pdfoperation.models.PDFImageDetails;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -43,6 +46,11 @@ public class ConvertToGrayScale {
     private static final String INPUT_FILE="Shipping.pdf";
     private static final String OUTPUT_DIR = BASE_DIR + "output";
     private static final String OUT_PUT_FILE = "GrayScaled_"+INPUT_FILE;
+
+    public static void main(String[] args) {
+        ConvertToGrayScale convertToGrayScale = new ConvertToGrayScale();
+        convertToGrayScale.convertPDFToGrayScaleUsingPDFBox();
+    }
 
     /**
      * This method converts a PDF document to grayscale using PDFBox.

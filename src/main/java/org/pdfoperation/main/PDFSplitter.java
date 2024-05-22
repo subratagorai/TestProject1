@@ -1,4 +1,4 @@
-package org.pdfoperation;
+package org.pdfoperation.main;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.Splitter;
@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author SUBRATAG
  */
-public class PDFSplitterMain {
+public class PDFSplitter {
     public static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/input/";
     private static final String INPUT_FILE="Sample.pdf";
     private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;

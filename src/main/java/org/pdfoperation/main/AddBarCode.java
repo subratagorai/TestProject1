@@ -1,4 +1,4 @@
-package org.pdfoperation;
+package org.pdfoperation.main;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
@@ -19,13 +19,13 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class AddBarCodeMain {
+public class AddBarCode {
     private static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/";
     private static final String INPUT_DIR = BASE_DIR + "input";
     private static final String INPUT_FILE="Shipping.pdf";
     private static final String OUTPUT_DIR = BASE_DIR + "output";
     private static final String OUT_PUT_FILE = "AddedBarcodeAndBlankPage_"+INPUT_FILE;
-    private static final Logger LOGGER = Logger.getLogger(PDFSplitterMain.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PDFSplitter.class.getName());
     public static void main(String[] args) {
         try {
 

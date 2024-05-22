@@ -1,4 +1,4 @@
-package org.pdfoperation;
+package org.pdfoperation.utils;
 
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
 import org.apache.pdfbox.contentstream.operator.DrawObject;
@@ -15,6 +15,7 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
+import org.pdfoperation.models.PDFImageDetails;
 
 import java.io.IOException;
 import java.util.List;

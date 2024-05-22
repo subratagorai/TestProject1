@@ -1,4 +1,4 @@
-package org.pdfoperation;
+package org.pdfoperation.models;
 
 /**
  * This class represents the details of an image in a PDF document.
