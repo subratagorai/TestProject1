@@ -1,4 +1,4 @@
-package org.example;
+package org.pdfoperation;
 
 import org.apache.pdfbox.contentstream.PDFStreamEngine;
 import org.apache.pdfbox.contentstream.operator.DrawObject;
@@ -19,20 +19,44 @@ import org.apache.pdfbox.util.Matrix;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * This class extends PDFStreamEngine to extract image details from a PDF page.
+ * It processes the PDF page and identifies image objects, retrieving their details such as position and scaling factors.
+ * The image details are stored in an instance of PDFImageDetails.
+ *
+ * @author SUBRATAG
+ */
 public class GetImageDetailsService extends PDFStreamEngine {
 
     private final List<COSBase> currentOperands;
     private PDFImageDetails pdfImageDetails;
 
 
+    /**
+     * Retrieves the PDFImageDetails instance.
+     *
+     * @return The PDFImageDetails instance.
+     */
     public PDFImageDetails getPdfImageDetails() {
         return pdfImageDetails;
     }
 
+    /**
+     * Sets the PDFImageDetails instance.
+     *
+     * @param pdfImageDetails The PDFImageDetails instance to be set.
+     */
     public void setPdfImageDetails(PDFImageDetails pdfImageDetails) {
         this.pdfImageDetails = pdfImageDetails;
     }
 
+    /**
+     * Constructor for GetImageDetailsService.
+     * Initializes the current operands and adds necessary operators.
+     *
+     * @param currentOperands The current operands to be processed.
+     * @throws IOException If an I/O error occurs.
+     */
     public GetImageDetailsService(List<COSBase> currentOperands) throws IOException
     {
         this.currentOperands = currentOperands;
@@ -44,11 +68,26 @@ public class GetImageDetailsService extends PDFStreamEngine {
         addOperator(new SetMatrix(this));
     }
 
+    /**
+     * Extracts image details from a given PDF page.
+     *
+     * @param page The PDF page to be processed.
+     * @return The PDFImageDetails instance containing the image details.
+     * @throws IOException If an I/O error occurs.
+     */
     public PDFImageDetails getImageDetailsFromPage(PDPage page) throws IOException {
        this.processPage(page);
        return this.getPdfImageDetails();
     }
 
+    /**
+     * Processes the operator and operands.
+     * If the operator is a DRAW_OBJECT, it retrieves the image details.
+     *
+     * @param operator The operator to be processed.
+     * @param operands The operands to be processed.
+     * @throws IOException If an I/O error occurs.
+     */
     @Override
     protected void processOperator(Operator operator, List<COSBase> operands) throws IOException
     {

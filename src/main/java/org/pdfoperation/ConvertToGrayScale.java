@@ -1,4 +1,4 @@
-package org.example;
+package org.pdfoperation;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.contentstream.operator.Operator;
@@ -29,52 +29,79 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This class is responsible for converting a PDF document to grayscale using PDFBox.
+ * It provides methods to convert color values (CMYK and RGB) to grayscale for each page of the document.
+ * It also handles image tokens, converting images to grayscale and replacing the original image tokens.
+ * After processing all tokens, it writes the updated tokens back to the page and saves the updated document.
+ * It does not work for form fields, annotations, or other advanced PDF features.
+ * @author SUBRATAG
+ */
 public class ConvertToGrayScale {
-    private static final String BASE_DIR = "/Users/subratag/Documents/git/github/TestProject1/src/main/resources/";
+    private static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/";
     private static final String INPUT_DIR = BASE_DIR + "input";
-    private static final String INPUT_FILE="Invoice-Format-in-PDF-05.pdf";
+    private static final String INPUT_FILE="PDF-Invoice-US-01.pdf";
     private static final String OUTPUT_DIR = BASE_DIR + "output";
     private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
 
+    /**
+     * This method converts a PDF document to grayscale using PDFBox.
+     * It loads the PDF document from the base directory, then iterates through each page of the document.
+     * For each page, it retrieves the tokens and converts color values (CMYK and RGB) to grayscale.
+     * It also handles image tokens, converting images to grayscale and replacing the original image tokens.
+     * After processing all tokens, it writes the updated tokens back to the page.
+     * Finally, it saves the updated document to the output directory.
+     */
     public void convertPDFToGrayScaleUsingPDFBox() {
         // Load PDF from Base Directory using PDFBox
         try {
             File file = new File(INPUT_DIR + "/" + INPUT_FILE);
             PDDocument document = Loader.loadPDF(file);
             System.out.println("PDF loaded");
-
             int pageCount = document.getPages().getCount();
+            // Loop through all the pages in the PDF and convert to grayscale using tokens
             for (int i = 0; i < pageCount; i++) {
+                // This shall hold the images being retrieved using the token OperatorName.DRAW_OBJECT for each page
                 List<ImageRef> imageRefs = new ArrayList<>();
+                // This shall hold the edited/filtered tokens for the page
+                List<Object> editedPageTokens = new ArrayList<>();
+                // This to be used to debug and find different operator names
+                Set<String> distinctOperator = new HashSet<>();
+
+
                 PDPage currentPage = document.getPage(i);
                 PDFStreamParser parser = new PDFStreamParser(currentPage);
                 // loop through all the tokens in the stream
                 List<Object> pageTokens = parser.parse();
                 System.out.println("pageTokens size: " + pageTokens.size());
-                List<Object> editedPageTokens = new ArrayList<>();
-                Set<String> distinctOperator = new HashSet<>();
+
                 for (int counter = 0; counter < pageTokens.size(); counter++) {
                     Object token = pageTokens.get(counter);
                     if (token instanceof Operator) {
-                        //TODO Need to check cs token to be removed or not
                         distinctOperator.add(((Operator) token).getName());
+
                         //System.out.println("Token value counter " + counter + " " + ((Operator) token).getName());
+                        // if  CMYK non-stroking color operator
                          if (((Operator) token).getName().equals("k")) {
-                            //System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
+                            System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
                             convertCMYKToRGBToGray(pageTokens, editedPageTokens, counter);
                             editedPageTokens.add(Operator.getOperator("g"));
-                        } else if (((Operator) token).getName().equals("K")) {
-                           // System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
+                        }
+                         // if  CMYK stroking color operator
+                         else if (((Operator) token).getName().equals("K")) {
+                            System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
                             convertCMYKToRGBToGray(pageTokens, editedPageTokens, counter);
                             editedPageTokens.add(Operator.getOperator("G"));
                         }
+                         // if RGB non-stroking color operator
                         else if (((Operator) token).getName().equals("rg")) {
-                            //System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
+                            System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
                             convertGBToGray(pageTokens, editedPageTokens, counter);
                             editedPageTokens.add(Operator.getOperator("g"));
                         }
+                        // if RGB stroking color operator
                         else if (((Operator) token).getName().equals("RG")) {
-                            //System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
+                            System.out.println("Color Operator: " + ((Operator) token).getName() + " for token counter: " + counter);
                             convertGBToGray(pageTokens, editedPageTokens, counter);
                             editedPageTokens.add(Operator.getOperator("G"));
                         }
@@ -82,6 +109,11 @@ public class ConvertToGrayScale {
                         Logic for Images
                          */
                         //Process tokens for images
+                         /*
+                          * Here need to loop on Images and using ##PDFStreamEngine , extract the existing images details
+                          *convert , it to grey images , remove the token for the images and filter out the Operator for the images so that existing images
+                          * are removed
+                          */
                         else if (OperatorName.DRAW_OBJECT.equals(((Operator) token).getName()))
                         {
                             COSName cosName = null;
@@ -102,12 +134,13 @@ public class ConvertToGrayScale {
                                 // get image's width and height
                                 int width = bufferedImage.getWidth();
                                 int height = bufferedImage.getHeight();
+                                //get pixels using actual images width and height
                                 int[] pixels = bufferedImage.getRGB(0, 0, width, height, null, 0, width);
+
                                 // convert pixels to grayscale
                                 for (int k = 0; k < pixels.length; k++) {
 
-                                    // Here k denotes the index of array of pixels
-                                    // for modifying the pixel value.
+                                    // Here k denotes the index of array of pixel for modifying the pixel value.
                                     int p = pixels[k];
 
                                     int a = (p >> 24) & 0xff;
@@ -123,20 +156,21 @@ public class ConvertToGrayScale {
 
                                     pixels[k] = p;
                                 }
+                                // create new image with the modified pixels
                                 bufferedImage.setRGB(0, 0, width, height, pixels, 0, width);
                                 // remove image token from the list
                                 editedPageTokens.remove(editedPageTokens.size() -1);
                                 // add list of images to be added in the page
                                 imageRefs.add(new ImageRef(bufferedImage,cosName.getName(),pdfImageDetails.getXAxis(), pdfImageDetails.getYAxis(), pdfImageDetails.getScalingFactorX(), pdfImageDetails.getScalingFactorY()));
 
-                                // write image
-//                                try {
-//                                    File f = new File( GrayScalePDFPrinter.BASE_DIR +"/"+ cosName+ Math.random() + ".png");
-//
-//                                    ImageIO.write(bufferedImage, "png", f);
-//                                } catch (IOException e) {
-//                                    System.out.println(e);
-//                                }
+                                // write image, for testing/debug purpose that grayscale is done or not
+                                try {
+                                    File f = new File( BASE_DIR +"/"+ cosName+ Math.random() + ".png");
+
+                                    ImageIO.write(bufferedImage, "png", f);
+                                } catch (IOException e) {
+                                    System.out.println(e);
+                                }
 
                                 System.out.println();
 
@@ -159,7 +193,10 @@ public class ConvertToGrayScale {
                     }
 
                 }
+
                 System.out.println("Distinct operators: " + distinctOperator.toString());
+
+                // created updated page with filtered tokens
                 PDStream updatedPageContents = new PDStream(document);
 
                 OutputStream outputStream = updatedPageContents.createOutputStream(COSName.FLATE_DECODE);
@@ -168,6 +205,11 @@ public class ConvertToGrayScale {
                 currentPage.setContents(updatedPageContents);
                 outputStream.close();
 
+
+                /*
+                * Add updated images to the page
+                *
+                * */
                 for (ImageRef imageRef: imageRefs) {
                     PDImageXObject imageGrayScale =  LosslessFactory.createFromImage(document, imageRef.getBufferedImage());
                     PDPageContentStream contentStream = new PDPageContentStream(document, currentPage, PDPageContentStream.AppendMode.APPEND, true,true);
@@ -175,6 +217,8 @@ public class ConvertToGrayScale {
                     contentStream.close();
                 }
             }
+
+
             document.save(OUTPUT_DIR+"/" + OUT_PUT_FILE);
             // Remember to close the PDF document
             document.close();
@@ -185,14 +229,22 @@ public class ConvertToGrayScale {
         }
     }
 
-
+    /**
+     * This method converts CMYK color values to grayscale.
+     * It first retrieves the CMYK values from the page tokens, then converts them to RGB, and finally calculates the grayscale equivalent.
+     * The original CMYK tokens are removed from the edited page tokens and the grayscale value is added.
+     *
+     * @param pageTokens The list of tokens from the page. This list contains the CMYK values to be converted.
+     * @param editedPageTokens The list of edited tokens for the page. The converted grayscale value will be added to this list.
+     * @param counter The current position in the list of page tokens. This is used to retrieve the CMYK values.
+     */
     private void convertCMYKToRGBToGray(List<Object> pageTokens, List<Object> editedPageTokens, int counter) {
         Object o1 = pageTokens.get(counter - 4);
         Object o2 = pageTokens.get(counter - 3);
         Object o3 = pageTokens.get(counter - 2);
         Object o4 = pageTokens.get(counter - 1);
 
-      //  System.out.println("CMYK values: " + o1 + " " + o2 + " " + o3 + " " + o4);
+        System.out.println("CMYK values: " + o1 + " " + o2 + " " + o3 + " " + o4);
 
         float cyan;
         float magenta;
@@ -227,37 +279,45 @@ public class ConvertToGrayScale {
         int green = Math.round(255 * (1 - magenta) * (1 - black));
         int blue = Math.round(255 * (1 - yellow) * (1 - black));
 
-        //System.out.println("RGB values: " + red + " " + green + " " + blue);
+        System.out.println("RGB values: " + red + " " + green + " " + blue);
 
         // convert RGB to grayscale
         int gray = Math.round(0.299f * red + 0.587f * green + 0.114f * blue);
 
-        //System.out.println("Gray value: " + gray);
+        System.out.println("Gray value: " + gray);
 
-        // Add grayscale, gray
-        float gray1 = (float) gray / 255;
-        BigDecimal bd = new BigDecimal(Float.toString(gray1));
+        // Changes gray colour code as per PDFBox format
+        float grayCodeForPDF = (float) gray / 255;
+        BigDecimal bd = new BigDecimal(Float.toString(grayCodeForPDF));
         bd = bd.setScale(2, RoundingMode.HALF_UP);
-        gray1 = bd.floatValue();
-        //System.out.println("Gray1 value: " + gray1);
+        grayCodeForPDF = bd.floatValue();
+        System.out.println("grayCodeForPDF value: " + grayCodeForPDF);
 
-        // remove CMYK
+        // remove CMYK tokens
         editedPageTokens.remove(editedPageTokens.size() - 1);
         editedPageTokens.remove(editedPageTokens.size() - 1);
         editedPageTokens.remove(editedPageTokens.size() - 1);
         editedPageTokens.remove(editedPageTokens.size() - 1);
 
-        // Add grayscale, gray
-        editedPageTokens.add(new COSFloat(gray1));
+        // Add grayscale, tokens
+        editedPageTokens.add(new COSFloat(grayCodeForPDF));
     }
 
-
+    /**
+     * This method converts RGB color values to grayscale.
+     * It first retrieves the RGB values from the page tokens, then calculates the grayscale equivalent.
+     * The original RGB tokens are removed from the edited page tokens and the grayscale value is added.
+     *
+     * @param pageTokens The list of tokens from the page. This list contains the RGB values to be converted.
+     * @param editedPageTokens The list of edited tokens for the page. The converted grayscale value will be added to this list.
+     * @param counter The current position in the list of page tokens. This is used to retrieve the RGB values.
+     */
     private void convertGBToGray(List<Object> pageTokens, List<Object> editedPageTokens, int counter) {
+
+        // Get RGB values
         Object o1 = pageTokens.get(counter - 3);
         Object o2 = pageTokens.get(counter - 2);
         Object o3 = pageTokens.get(counter - 1);
-
-        //  System.out.println("CMYK values: " + o1 + " " + o2 + " " + o3 + " " + o4);
 
         float red;
         float green;
@@ -281,21 +341,21 @@ public class ConvertToGrayScale {
             blue = ((COSInteger) o3).floatValue();
         }
 
-        //System.out.println("RGB values: " + red + " " + green + " " + blue);
+        System.out.println("RGB values: " + red + " " + green + " " + blue);
 
         // convert RGB to grayscale
-        float gray1 = 0.299f * red + 0.587f * green + 0.114f * blue;
-        BigDecimal bd = new BigDecimal(Float.toString(gray1));
+        float grayCodePDFBox = 0.299f * red + 0.587f * green + 0.114f * blue;
+        BigDecimal bd = new BigDecimal(Float.toString(grayCodePDFBox));
         bd = bd.setScale(2, RoundingMode.HALF_UP);
-        gray1 = bd.floatValue();
-        //System.out.println("Gray1 value: " + gray1);
+        grayCodePDFBox = bd.floatValue();
+        System.out.println("grayCodePDFBox value: " + grayCodePDFBox);
 
-        // remove CMYK
+        // remove CMYK tokens
         editedPageTokens.remove(editedPageTokens.size() - 1);
         editedPageTokens.remove(editedPageTokens.size() - 1);
         editedPageTokens.remove(editedPageTokens.size() - 1);
 
-        // Add grayscale, gray
-        editedPageTokens.add(new COSFloat(gray1));
+        // Add gray tokens
+        editedPageTokens.add(new COSFloat(grayCodePDFBox));
     }
 }

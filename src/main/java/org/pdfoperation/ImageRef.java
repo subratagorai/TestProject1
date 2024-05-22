@@ -1,4 +1,4 @@
-package org.example;
+package org.pdfoperation;
 
 import java.awt.image.BufferedImage;
 

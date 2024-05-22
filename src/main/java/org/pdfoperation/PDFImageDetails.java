@@ -1,5 +1,12 @@
-package org.example;
+package org.pdfoperation;
 
+/**
+ * This class represents the details of an image in a PDF document.
+ * It includes the position of the image (x and y coordinates) and the scaling factors for the image's width and height.
+ * The position and scaling factors are in user space units as defined by the PDF specification.
+ *
+ * @author SUBRATAG
+ */
 public class PDFImageDetails {
     float xAxis;
     float yAxis;
@@ -17,31 +24,19 @@ public class PDFImageDetails {
         return xAxis;
     }
 
-    public void setXAxis(float xAxis) {
-        this.xAxis = xAxis;
-    }
 
     public float getYAxis() {
         return yAxis;
     }
 
-    public void setYAxis(float yAxis) {
-        this.yAxis = yAxis;
-    }
+
 
     public float getScalingFactorX() {
         return scalingFactorX;
-    }
-
-    public void setScalingFactorX(float scalingFactorX) {
-        this.scalingFactorX = scalingFactorX;
     }
 
     public float getScalingFactorY() {
         return scalingFactorY;
     }
 
-    public void setScalingFactorY(float scalingFactorY) {
-        this.scalingFactorY = scalingFactorY;
-    }
 }
