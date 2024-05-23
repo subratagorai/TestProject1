@@ -17,26 +17,28 @@ import java.util.List;
  * @author SUBRATAG
  */
 public class PDFSplitter {
-    public static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/input/";
-    private static final String INPUT_FILE="Sample.pdf";
-    private static final String OUT_PUT_FILE = "Updated_"+INPUT_FILE;
+    private static final String BASE_DIR = "/Users/subratag/Documents/git/github/pdfoperations/src/main/resources/";
+    private static final String INPUT_DIR = BASE_DIR + "input";
+    private static final String INPUT_FILE="ConsolidatedBill_AG_20240301_M01_1_1_4.pdf";
+    private static final String OUTPUT_DIR = BASE_DIR + "output";
+    private static final String OUT_PUT_FILE = "ConsolidatedBill_Sample.pdf";
 
     public static void main(String[] args) throws IOException {
 
-        File file = new File(BASE_DIR + "/" + INPUT_FILE);
+        File file = new File(INPUT_DIR + "/" + INPUT_FILE);
         PDDocument document = Loader.loadPDF(file);
         System.out.println("PDF loaded");
         Splitter splitter = new Splitter();
+        splitter.setStartPage(1);
+        splitter.setEndPage(50);
+        splitter.setSplitAtPage(50 - 1 +1);
         List<PDDocument> splitDocuments = splitter.split(document);
 
-        // Save each individual page as a separate PDF
-        for (int i = 0; i < 2; i++) {
-            PDDocument page = splitDocuments.get(i);
-            page.save(new File(BASE_DIR+"output_page_" + (i + 1) + ".pdf"));
-            page.close();
-        }
+        PDDocument page = splitDocuments.get(0);
+        page.save(new File(OUTPUT_DIR+ "/" + OUT_PUT_FILE ));
+        page.close();
 
         document.close();
-        System.out.println("Splitting PDF");
+        System.out.println("Extract  PDF");
     }
 }
